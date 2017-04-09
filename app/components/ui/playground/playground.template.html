@@ -1,0 +1,4 @@
+<canvas id="canvas" height="600" width="600" style="height:1200; width:600;border: 1px gray solid; float: left"></canvas>
+<input type="number" name="rotateAngle" ng-model="$ctrl.rotateAngle" ng-change="$ctrl.drawRotated()" />
+
+<input type="file" name="bgsrc" value="" onchange="angular.element(this).scope().$ctrl.backgroundChange(this)" />
