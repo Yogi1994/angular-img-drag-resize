@@ -32,6 +32,7 @@ function _handleMouseOut(e){
 }
 
 function _handleMouseMove(e){
+  // console.log(this, e);
   this.canMouseX=parseInt(e.clientX);
   this.canMouseY=parseInt(e.clientY);
 
@@ -40,6 +41,9 @@ function _handleMouseMove(e){
 
   var nearLeft = checkCloseEnough(this.canMouseX, this.x, this.closeEnough);
   var nearRight = checkCloseEnough(this.canMouseX, this.x + this.width, this.closeEnough);
+
+  var nearRotateHandle = (checkCloseEnough(this.canMouseX, this.x + this.width/2, 20) && checkCloseEnough(this.canMouseY, this.y , 20));
+
   // 1. top left
   if (nearTop && nearLeft) {
       this.dragTL = true;
@@ -109,6 +113,31 @@ function _handleMouseMove(e){
 
     this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
     this.drawHandles();
+  } else if(nearRotateHandle && this.isDragging) {
+    console.log('rotate');
+    
+    var diffx = this.canMouseX - this.beforeDragx;
+    var diffy = this.canMouseY - this.beforeDragy;
+
+    if(Math.abs(diffy) > Math.abs(diffx)){
+      this.rotateAngle += (diffy*0.2);
+    }else {
+      this.rotateAngle += (diffx*0.2);
+    }
+    console.log(this.rotateAngle, this.rotateAngle*Math.PI/180);
+
+    this.context.clearRect(0,0,this.canvasWidth,this.canvasWidth);
+    this.context.save();
+    this.context.translate(this.width/2,this.height/2);
+    this.context.rotate(this.rotateAngle*Math.PI/180);
+    // this.x = this.x - this.
+    this.drawHandles(true);
+    this.context.drawImage(this.base_image, this.x, this.y, -this.width,-this.height);
+    this.context.restore();
+
+  }else if(this.isDragging === false){
+    this.beforeDragx = this.canMouseX;
+    this.beforeDragy = this.canMouseY;
   }
 }
 
@@ -124,6 +153,7 @@ function drawRotated(){
   this.context.save();
   this.context.translate(this.width,this.height);
   this.context.rotate(this.rotateAngle*Math.PI/180);
+  // this.x = this.x - this.
   this.context.drawImage(this.base_image, this.x, this.y, -this.width,-this.height);
   // this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
   this.context.restore();
@@ -177,19 +207,26 @@ function _isDragable(mousex, mousey){
 }
 
 
-function drawCircle(x, y, radius) {
-    // this.context.fillStyle = "#FF0000";
+function drawCircle(x, y, radius, color) {
+    this.context.fillStyle = color;
     this.context.beginPath();
     this.context.arc(x, y, radius, 0, 2 * Math.PI);
     this.context.fill();
 }
 
 //These handles will be used to scale the image.
-function drawHandles() {
-    this.drawCircle(this.x, this.y, this.closeEnough);
-    this.drawCircle(this.x + this.width, this.y, this.closeEnough);
-    this.drawCircle(this.x + this.width, this.y + this.height, this.closeEnough);
-    this.drawCircle(this.x, this.y + this.height, this.closeEnough);
+function drawHandles(isRotate) {
+    var rotate = 1;
+    if(isRotate){
+      rotate = -1;
+    }
+
+    this.drawCircle(this.x, this.y, this.closeEnough, "#F00");
+    this.drawCircle(this.x + rotate*this.width, this.y, this.closeEnough, "#0F0" );
+    this.drawCircle(this.x + rotate*this.width, this.y + rotate*this.height, this.closeEnough, "#00F");
+    this.drawCircle(this.x, this.y + rotate*this.height, this.closeEnough, "#000");
+
+    this.drawCircle(this.x + rotate*(this.width/2), rotate*this.y -20, 20, "#acacac");
 }
 
 // Register `playground` component, along with its associated controller and template
@@ -198,7 +235,7 @@ playground.
     templateUrl: 'components/ui/playground/playground.template.html',
     controller: 
 
-      function PlaygroundController() {
+      function PlaygroundController($scope) {
         this.canvas = document.getElementById('canvas');
         this.context = canvas.getContext('2d');
         this.imgsrc = 'http://www.samskirrow.com/background.png';
@@ -218,7 +255,7 @@ playground.
         this.imageload =true;
         this.rotateAngle = 0; //in degrees
         this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height );
-
+        this.x++;
         this.bgurl = 'img/bg.jpg';
         this.canvas.style.background = "url("+ this.bgurl +")";
         
@@ -226,6 +263,18 @@ playground.
         this.drawRotated = drawRotated.bind(this);
         this.drawHandles = drawHandles.bind(this);
         this.drawCircle = drawCircle.bind(this);
+
+        this.beforeDragx = this.x ;
+        this.beforeDragy = this.y ;
+
+         $scope.coordinate = function($event){
+            // console.log($scope);
+            $scope.x = $event.x;
+            $scope.y = $event.y;
+            
+         }
+
+        // this.
         this.drawHandles();
         this.backgroundChange = backgroundChangeX.bind(this);
 
