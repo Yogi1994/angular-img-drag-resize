@@ -57,6 +57,7 @@ function drawRotated(){
 
 function setBackground(e) {
   this.bgurl = e.target.result;
+  this.make_base_img
   this.canvas.style.background = "url("+ this.bgurl +")";
 }
 
@@ -64,6 +65,19 @@ function backgroundChangeX(element){
   if (element.files && element.files[0]) {
     var reader = new FileReader();            
     reader.onload = setBackground.bind(this);
+    reader.readAsDataURL(element.files[0]);
+  }
+}
+
+function setHeadImage(e) {
+  this.imgsrc = e.target.result;
+  this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height );
+}
+
+function headChange(element) {
+  if (element.files && element.files[0]) {
+    var reader = new FileReader();            
+    reader.onload = setHeadImage.bind(this);
     reader.readAsDataURL(element.files[0]);
   }
 }
@@ -103,6 +117,7 @@ playground.
 
         this.backgroundChange = backgroundChangeX.bind(this);
 
+        this.headChange = headChange.bind(this);
 
         this.handleMouseDown = _handleMouseDown.bind(this);
         this.handleMouseMove = _handleMouseMove.bind(this);
