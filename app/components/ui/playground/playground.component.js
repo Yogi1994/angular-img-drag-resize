@@ -54,10 +54,18 @@ function drawRotated(){
   this.context.restore();
 }
 
-function backgroundChangeX(element){
-  console.log("backgroundChange",this.bgurl, element.value);
-  this.bgurl = 'img/'+ element.value
+
+function setBackground(e) {
+  this.bgurl = e.target.result;
   this.canvas.style.background = "url("+ this.bgurl +")";
+}
+
+function backgroundChangeX(element){
+  if (element.files && element.files[0]) {
+    var reader = new FileReader();            
+    reader.onload = setBackground.bind(this);
+    reader.readAsDataURL(element.files[0]);
+  }
 }
 
 // Register `playground` component, along with its associated controller and template
