@@ -53,7 +53,7 @@ function _handleMouseMove(e){
         this.height += this.y - this.canMouseY;
         this.x = this.canMouseX;
         this.y = this.canMouseY;
-        console.log(this.width, this.height, this.x, this.y);
+        // console.log(this.width, this.height, this.x, this.y);
         this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
         this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
         this.drawHandles();
@@ -114,17 +114,24 @@ function _handleMouseMove(e){
     this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
     this.drawHandles();
   } else if(nearRotateHandle && this.isDragging) {
-    console.log('rotate');
+    // console.log('rotate');
     
     var diffx = this.canMouseX - this.beforeDragx;
     var diffy = this.canMouseY - this.beforeDragy;
 
     if(Math.abs(diffy) > Math.abs(diffx)){
-      this.rotateAngle += (diffy*0.2);
+      if(Math.abs(diffx) > 1){
+        this.beforeDragx = this.canMouseX;
+        this.rotateAngle += (diffy*0.2);
+      }
+      
     }else {
-      this.rotateAngle += (diffx*0.2);
+      if(Math.abs(diffy) > 1){
+        this.beforeDragy = this.canMouseY;
+        this.rotateAngle += (diffx*0.2);
+      }
     }
-    console.log(this.rotateAngle, this.rotateAngle*Math.PI/180);
+    // console.log(this.rotateAngle, this.rotateAngle*Math.PI/180);
 
     this.context.clearRect(0,0,this.canvasWidth,this.canvasWidth);
     this.context.save();
@@ -132,7 +139,7 @@ function _handleMouseMove(e){
     this.context.rotate(this.rotateAngle*Math.PI/180);
     // this.x = this.x - this.
     this.drawHandles(true);
-    this.context.drawImage(this.base_image, this.x, this.y, -this.width,-this.height);
+    this.context.drawImage(this.base_image, this.x +this.width/2, this.y + this.height/2, -this.width,-this.height);
     this.context.restore();
 
   }else if(this.isDragging === false){
@@ -148,16 +155,6 @@ function checkCloseEnough(p1, p2, closeEnough) {
     return Math.abs(p1 - p2) < closeEnough;
 }
 
-function drawRotated(){
-  this.context.clearRect(0,0,this.canvasWidth,this.canvasWidth);
-  this.context.save();
-  this.context.translate(this.width,this.height);
-  this.context.rotate(this.rotateAngle*Math.PI/180);
-  // this.x = this.x - this.
-  this.context.drawImage(this.base_image, this.x, this.y, -this.width,-this.height);
-  // this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
-  this.context.restore();
-}
 
 /**
  * This will set the background of the canvas.
@@ -193,14 +190,14 @@ function headChange(element) {
  * If not then do not drag.
  */
 function _isDragable(mousex, mousey){
-  var diffx = mousex -(this.x + 10);
+  var diffx = mousex -(this.x + 20);
   var xInside = true;
-  if(diffx < 0 || diffx > this.width -10){
+  if(diffx < 0 || diffx > this.width -20){
     xInside = false;
   }
-  var diffy = mousey -(this.y + 10);
+  var diffy = mousey -(this.y + 20);
   var yInside = true;
-  if(diffy < 0 || diffy > this.height -10){
+  if(diffy < 0 || diffy > this.height -20){
     yInside = false;
   }
   return (xInside && yInside);
@@ -216,17 +213,28 @@ function drawCircle(x, y, radius, color) {
 
 //These handles will be used to scale the image.
 function drawHandles(isRotate) {
-    var rotate = 1;
+    var rotate = 0;
     if(isRotate){
-      rotate = -1;
+      rotate = 1;
     }
 
-    this.drawCircle(this.x, this.y, this.closeEnough, "#F00");
-    this.drawCircle(this.x + rotate*this.width, this.y, this.closeEnough, "#0F0" );
-    this.drawCircle(this.x + rotate*this.width, this.y + rotate*this.height, this.closeEnough, "#00F");
-    this.drawCircle(this.x, this.y + rotate*this.height, this.closeEnough, "#000");
+    this.drawCircle(this.x - (rotate*this.x), this.y-(rotate*this.y), this.closeEnough, "#F00");
+    this.drawCircle(this.x + this.width  - (rotate*(this.x )), this.y-(rotate*this.y), this.closeEnough, "#0F0" );
+    this.drawCircle(this.x + this.width  - (rotate*(this.x )), this.y + this.height -(rotate*(this.y)), this.closeEnough, "#00F");
+    this.drawCircle(this.x - (rotate*this.x), this.y + this.height -(rotate*(this.y )), this.closeEnough, "#000");
 
-    this.drawCircle(this.x + rotate*(this.width/2), rotate*this.y -20, 20, "#acacac");
+    this.drawCircle(this.x + this.width/2 - rotate*(this.x ), (this.y -40) - rotate*(this.y), 40, "#acacac");
+}
+
+function drawRotated(degrees){
+    this.context.clearRect(0,0,this.canvasWidth,this.canvasWidth);
+    this.context.save();
+    this.context.translate(this.width,this.height);
+    this.context.rotate(this.rotateAngle*Math.PI/180);
+    this.drawHandles(true);
+    this.context.drawImage(this.base_image, this.x, this.y, -this.width,-this.height);
+    // this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
+    this.context.restore();
 }
 
 // Register `playground` component, along with its associated controller and template
