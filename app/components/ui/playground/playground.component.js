@@ -59,7 +59,17 @@ function _handleMouseMove(e){
   else if (nearTop && nearRight) {
       this.dragTR = true;
       console.log("TR");
-      
+      if(this.isDragging){
+
+        this.width = Math.abs(this.x - this.canMouseX);
+        this.height += this.y - this.canMouseY;
+        this.y = this.canMouseY;
+        
+        console.log(this.width, this.height, this.x, this.y);
+        this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
+        this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
+        this.drawHandles();
+      }
 
   }
   // 3. bottom left
