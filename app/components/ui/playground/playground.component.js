@@ -35,7 +35,7 @@ function _handleMouseMove(e){
   this.canMouseX=parseInt(e.clientX);
   this.canMouseY=parseInt(e.clientY);
   // if the drag flag is set, clear the canvas and draw the image
-  if(this.isDragging){
+  if(this.isDragging && this.isDragable(this.canMouseX, this.canMouseY, this.x, this.y)){
     this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
     this.x = this.canMouseX-this.width/2;
     this.y = this.canMouseY-this.height/2;
@@ -54,16 +54,17 @@ function drawRotated(){
   this.context.restore();
 }
 
-
+/**
+ * This will set the background of the canvas.
+ */
 function setBackground(e) {
   this.bgurl = e.target.result;
-  this.make_base_img
   this.canvas.style.background = "url("+ this.bgurl +")";
 }
 
 function backgroundChangeX(element){
   if (element.files && element.files[0]) {
-    var reader = new FileReader();            
+    var reader = new FileReader();              
     reader.onload = setBackground.bind(this);
     reader.readAsDataURL(element.files[0]);
   }
@@ -80,6 +81,20 @@ function headChange(element) {
     reader.onload = setHeadImage.bind(this);
     reader.readAsDataURL(element.files[0]);
   }
+}
+
+function dragArea(mousex, mousey){
+  var diffx = mousex -(this.x + 10);
+  var xInside = true;
+  if(diffx < 0 || diffx > this.width -10){
+    xInside = false;
+  }
+  var diffy = mousey -(this.y + 10);
+  var yInside = true;
+  if(diffy < 0 || diffy > this.height -10){
+    yInside = false;
+  }
+  return (xInside && yInside);
 }
 
 // Register `playground` component, along with its associated controller and template
@@ -112,7 +127,7 @@ playground.
         this.bgurl = 'img/bg.jpg';
         this.canvas.style.background = "url("+ this.bgurl +")";
         
-
+        this.isDragable = dragArea.bind(this);
         this.drawRotated = drawRotated.bind(this);
 
         this.backgroundChange = backgroundChangeX.bind(this);
