@@ -64,7 +64,7 @@ function _handleMouseMove(e){
         this.width = Math.abs(this.x - this.canMouseX);
         this.height += this.y - this.canMouseY;
         this.y = this.canMouseY;
-        
+
         console.log(this.width, this.height, this.x, this.y);
         this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
         this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
@@ -78,9 +78,9 @@ function _handleMouseMove(e){
       console.log("BL");
       if(this.isDragging){
         this.width += this.x - this.canMouseX;
-        this.height += this.y - this.canMouseY;
+        this.height = Math.abs(this.y - this.canMouseY);
         this.x = this.canMouseX;
-        this.y = this.canMouseY;
+
         console.log(this.width, this.height, this.x, this.y);
         this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
         this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
@@ -92,11 +92,9 @@ function _handleMouseMove(e){
       this.dragBR = true;
       console.log("BR");
       if(this.isDragging){
-
-        this.width += this.x - this.canMouseX;
-        this.height += this.y - this.canMouseY;
-        this.x = this.canMouseX;
-        this.y = this.canMouseY;
+        this.width = Math.abs(this.x - this.canMouseX);
+        this.height = Math.abs(this.y - this.canMouseY);
+        
         console.log(this.width, this.height, this.x, this.y);
         this.context.clearRect(0,0,this.canvasWidth,this.canvasHeight);
         this.setImage(this.context,this.imgsrc,this.x,this.y,this.width,this.height);
